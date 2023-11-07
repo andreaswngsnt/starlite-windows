@@ -25,7 +25,7 @@ class ClientApp:
         self.response_label.pack()
 
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_address = '127.0.0.1'  # Server's IP address
+        self.server_address = '192.168.0.185'  # Server's IP address
         self.server_port = 12345
         self.username = None
         self.password = None
