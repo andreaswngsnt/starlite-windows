@@ -6,7 +6,7 @@ import keyboard
 import pygame
 
 # Server configuration
-HOST = '127.0.0.1'  # Listen on all available network interfaces
+HOST = '192.168.0.185'  # Listen on all available network interfaces
 PORT = 12345      # Port to listen on
 USERS = {'user1': 'password1', 'user2': 'password2'}  # Set the username and password
 

