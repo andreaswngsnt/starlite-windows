@@ -181,7 +181,7 @@ class MenuBar(tk.Menu):
         menu_file.add_command(label="Log Out", command=lambda: parent.Quit_application())
 
         menu_orders = tk.Menu(self, tearoff=0)
-        self.add_cascade(label="Place A New Order", menu=menu_orders)
+        self.add_cascade(label="Place A New Order", command=lambda: parent.frames[Some_Widgets].place_new_order())
 
         menu_pricing = tk.Menu(self, tearoff=0)
         self.add_cascade(label="Track An Existing Order", menu=menu_pricing)
@@ -199,11 +199,50 @@ class MenuBar(tk.Menu):
         self.add_cascade(label="Support", menu=menu_help)
         menu_help.add_command(label="Frequently-Asked Questions", command=lambda: parent.OpenNewWindow())
 
+class PlaceOrderPage(tk.Toplevel):
+    order_number = 1  # Global variable to keep track of the order number
+
+    def __init__(self, parent, some_widgets_frame):
+        tk.Toplevel.__init__(self, parent)
+        self.title("Place a New Order")
+
+        self.some_widgets_frame = some_widgets_frame  # Reference to the Some_Widgets frame
+
+        frame = ttk.Frame(self, padding="10")
+        frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
+        # Labels
+        ttk.Label(frame, text="Recipient:").grid(row=0, column=0, sticky=tk.W)
+        ttk.Label(frame, text="Delivery Address:").grid(row=1, column=0, sticky=tk.W)
+
+        # Entry widgets
+        recipient_entry = ttk.Entry(frame, width=30)
+        recipient_entry.grid(row=0, column=1, sticky=tk.W)
+
+        address_entry = ttk.Entry(frame, width=30)
+        address_entry.grid(row=1, column=1, sticky=tk.W)
+
+        # Button to submit the order
+        ttk.Button(frame, text="Submit Order", command=lambda: self.submit_order(recipient_entry.get(), address_entry.get())).grid(row=2, column=0, columnspan=2, pady=10)
+
+    def submit_order(self, recipient, address):
+        # Increment the order number
+        order_number = PlaceOrderPage.order_number
+
+        # Add the order details to the transaction history
+        transaction_history.append((order_number, recipient, address))
+
+        # Update the order number for the next order
+        PlaceOrderPage.order_number += 1
+
+        # Refresh the data in the "Most Recent Orders" tree view
+        self.some_widgets_frame.refresh_data()
+
+        # Close the order placement window
+        self.destroy()
 
 class MyApp(tk.Tk):
-
     def __init__(self, *args, **kwargs):
-
         tk.Tk.__init__(self, *args, **kwargs)
         main_frame = tk.Frame(self, bg="#84CEEB", height=600, width=1024)
         main_frame.pack_propagate(0)
@@ -286,41 +325,90 @@ class GUI(tk.Frame):
         self.main_frame.grid_columnconfigure(0, weight=1)
 
 
-class Some_Widgets(GUI):  # inherits from the GUI class
+class Some_Widgets(GUI):
     def __init__(self, parent, controller):
         GUI.__init__(self, parent)
 
-        frame1 = tk.LabelFrame(self, frame_styles, text="Most Recent Orders")
+        frame1 = tk.LabelFrame(self.main_frame, frame_styles, text="Most Recent Orders")
         frame1.place(rely=0.05, relx=0.02, height=400, width=400)
 
-        frame2 = tk.LabelFrame(self, frame_styles, text="Instructions")
-        frame2.place(rely=0.05, relx=0.45, height=500, width=500)
-
-        # This is a treeview.
-        tv1 = ttk.Treeview(frame1)
+        # Create tv1 as an instance attribute
+        self.tv1 = ttk.Treeview(frame1)
         column_list_account = ["Order Number", "Recipient", "Delivery Address"]
-        tv1['columns'] = column_list_account
-        tv1["show"] = "headings"  # removes empty column
+        self.tv1['columns'] = column_list_account
+        self.tv1["show"] = "headings"  # removes empty column
         for column in column_list_account:
-            tv1.heading(column, text=column)
-            tv1.column(column, width=50)
-        tv1.place(relheight=1, relwidth=0.995)
+            self.tv1.heading(column, text=column)
+            self.tv1.column(column, width=50)
+        self.tv1.place(relheight=1, relwidth=0.995)
         treescroll = tk.Scrollbar(frame1)
-        treescroll.configure(command=tv1.yview)
-        tv1.configure(yscrollcommand=treescroll.set)
+        treescroll.configure(command=self.tv1.yview)
+        self.tv1.configure(yscrollcommand=treescroll.set)
         treescroll.pack(side="right", fill="y")
 
-        def Load_data():
-            for row in transaction_history:
-                tv1.insert("", "end", values=row)
+        frame2 = tk.LabelFrame(self.main_frame, frame_styles, text="Instructions")
+        frame2.place(rely=0.05, relx=0.45, height=500, width=500)
 
-        def Refresh_data():
-            # Deletes the data in the current treeview and reinserts it.
-            tv1.delete(*tv1.get_children())  # *=splat operator
-            Load_data()
+    def load_data(self):
+        for row in transaction_history:
+            self.tv1.insert("", "end", values=row)
 
-        Load_data()
+    def refresh_data(self):
+        # Deletes the data in the current treeview and reinserts it.
+        self.tv1.delete(*self.tv1.get_children())  # *=splat operator
+        self.load_data()
 
+    def place_new_order(self):
+        # This method should handle the logic for placing a new order
+        # For example, it can open a new window with textboxes for order details
+        # and then update the transaction_history and refresh the treeview
+
+        # Create a new Toplevel window for order placement
+        order_window = tk.Toplevel(self)
+        order_window.title("Place a New Order")
+
+        frame = ttk.Frame(order_window, padding="10")
+        frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
+        # Labels
+        ttk.Label(frame, text="Recipient:").grid(row=0, column=0, sticky=tk.W)
+        ttk.Label(frame, text="Delivery Address:").grid(row=1, column=0, sticky=tk.W)
+
+        # Entry widgets
+        recipient_entry = ttk.Entry(frame, width=30)
+        recipient_entry.grid(row=0, column=1, sticky=tk.W)
+
+        address_entry = ttk.Entry(frame, width=30)
+        address_entry.grid(row=1, column=1, sticky=tk.W)
+
+        # Button to submit the order
+        ttk.Button(frame, text="Submit Order", command=lambda: self.submit_order(order_window, recipient_entry, address_entry)).grid(row=2, column=0, columnspan=2, pady=10)
+
+    def submit_order(self, order_window, recipient_entry, address_entry):
+        # Get the values from the entry widgets
+        recipient = recipient_entry.get()
+        address = address_entry.get()
+
+        if not recipient or not address:
+            # Display an error message if either field is empty
+            tk.messagebox.showerror("Error", "Both Recipient and Address must be filled")
+        else:
+            # Increment the order number
+            order_number = len(transaction_history) + 1
+
+            # Add the order details to the transaction history
+            new_order = [order_number, recipient, address]
+            transaction_history.append(new_order)
+
+            # Refresh the data in the "Most Recent Orders" tree view
+            self.refresh_data()
+
+            # Display a success message
+            tk.messagebox.showinfo("Success", "Order placed successfully!")
+
+            # Clear the entry widgets
+            recipient_entry.delete(0, tk.END)
+            address_entry.delete(0, tk.END)
 
 class PageOne(GUI):
     def __init__(self, parent, controller):
@@ -381,4 +469,3 @@ root.withdraw()
 root.title("Starlite Network")
 
 root.mainloop()
-
