@@ -290,7 +290,6 @@ class MyApp(tk.Tk):
                     if event.event_type == keyboard.KEY_DOWN:
                         if key not in keys_pressed:
                             client_socket.send(f"{key}".encode('utf-8'))
-                            keys_pressed.add(key)
                     elif event.event_type == keyboard.KEY_UP:
                         client_socket.send(f"{stop_key}".encode('utf-8'))
                         keys_pressed.discard(key)
