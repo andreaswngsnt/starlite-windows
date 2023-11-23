@@ -287,14 +287,15 @@ class MyApp(tk.Tk):
                     key = event.name
                     stop_key = ' '
 
-                    if event.event_type == keyboard.KEY_DOWN:
-                        if key not in keys_pressed:
-                            client_socket.send(f"{key}".encode('utf-8'))
-                    elif event.event_type == keyboard.KEY_UP:
-                        client_socket.send(f"{stop_key}".encode('utf-8'))
-
-                    if key == 'p':
-                        break  # Quit the loop when 'P' is pressed
+                    while True:
+                      if event.event_type == keyboard.KEY_DOWN:
+                          if key not in keys_pressed:
+                              client_socket.send(f"{key}".encode('utf-8'))
+                      elif event.event_type == keyboard.KEY_UP:
+                          client_socket.send(f"{stop_key}".encode('utf-8'))
+  
+                      if key == 'p':
+                          break  # Quit the loop when 'P' is pressed
 
                 print("Manual Control Stopped.")
             except Exception as e:
