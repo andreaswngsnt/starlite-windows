@@ -283,7 +283,6 @@ class MyApp(tk.Tk):
                 keys_pressed = set()
 
                 while True:
-                  while True:
                     event = keyboard.read_event()
                     key = event.name
                     stop_key = ' '
