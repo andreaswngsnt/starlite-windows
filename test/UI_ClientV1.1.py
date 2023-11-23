@@ -292,7 +292,6 @@ class MyApp(tk.Tk):
                             client_socket.send(f"{key}".encode('utf-8'))
                     elif event.event_type == keyboard.KEY_UP:
                         client_socket.send(f"{stop_key}".encode('utf-8'))
-                        keys_pressed.discard(key)
 
                     if key == 'p':
                         break  # Quit the loop when 'P' is pressed
