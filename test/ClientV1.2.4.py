@@ -281,7 +281,8 @@ class MyApp(tk.Tk):
         OpenNewWindow()
 
     def Mapview(self):
-        Mapview()
+        map_thread = threading.Thread(target=Mapview)
+        map_thread.start()
 
     def CameraFeed(self):
         CameraFeed()
