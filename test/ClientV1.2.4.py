@@ -287,6 +287,10 @@ class MyApp(tk.Tk):
     def CameraFeed(self):
         CameraFeed()
 
+    def MainMenu(self):
+        main_menu_thread = threading.Thread(target=MyApp)
+        main_menu_thread.start()
+
     def enable_manual_control(self):
         def keyboard_listener():
             try:
