@@ -285,7 +285,8 @@ class MyApp(tk.Tk):
         map_thread.start()
 
     def CameraFeed(self):
-        CameraFeed()
+        camera_thread = threading.Thread(target=CameraFeed)
+        camera_thread.start()
 
     def MainMenu(self):
         main_menu_thread = threading.Thread(target=MyApp)
