@@ -496,35 +496,30 @@ class CameraFeed(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
-        data = b""
-        payload_size = struct.calcsize("L")
+        # OpenCV window setup
+        cv2.namedWindow("Received Frame", cv2.WINDOW_NORMAL)
 
-        while True:
-            while len(data) < payload_size:
-                data += client_socket.recv(4096)
-                
-            packed_msg_size = data[:payload_size]
-            data = data[payload_size:]
-            msg_size = struct.unpack("L", packed_msg_size)[0]
+        try:
+            while True:
+                # Receive frame from the server
+                frame_bytes = client_socket.recv(4096)  # adjust buffer size as needed
+                if not frame_bytes:
+                    break  # connection closed
             
-            while len(data) < msg_size:
-                data += client_socket.recv(4096)
-            
-            frame_data = data[:msg_size]
-            data = data[msg_size:]
-            
-            # Deserialize frame
-            #frame = pickle.loads(frame_data)
-            frame = data.getFrame()
-            
-            # Display the frame
-            cv2.imshow('Client Feed', frame)
-            
-            # Break the loop if 'q' is pressed
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+                # Convert bytes to numpy array
+                frame_data = np.frombuffer(frame_bytes, dtype=np.uint8)
 
-        def quit_camera(self):
+                # Decode and display the received frame
+                received_frame = cv2.imdecode(frame_data, cv2.IMREAD_COLOR)
+                cv2.imshow("Received Frame", received_frame)
+            
+                # Break the loop if 'q' is pressed
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+
+        finally:
+            # Close the connection
+            client_socket.close()
             # Release resources
             cv2.destroyAllWindows()
 
