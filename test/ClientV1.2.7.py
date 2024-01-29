@@ -24,6 +24,7 @@ import webbrowser
 import cv2
 import pickle
 import struct
+#import depthai  as dai
 
 ######################################################################################
 #References:
@@ -116,7 +117,7 @@ class LoginPage(tk.Tk):
             validation = validate(username, password)
             if validation:
                 try:
-                    self.server_address = '127.0.0.1'
+                    self.server_address = '192.168.0.185'
                     self.server_port = 12345
 
                     # Connect to the server
@@ -513,7 +514,8 @@ class CameraFeed(tk.Tk):
             data = data[msg_size:]
             
             # Deserialize frame
-            frame = pickle.loads(frame_data)
+            #frame = pickle.loads(frame_data)
+            frame = data.getFrame()
             
             # Display the frame
             cv2.imshow('Client Feed', frame)
