@@ -24,6 +24,7 @@ import webbrowser
 import cv2
 import pickle
 import struct
+import numpy as np
 #import depthai  as dai
 
 ######################################################################################
@@ -56,6 +57,7 @@ frame_styles = {"relief": "groove",
 
 #Initializing client socket for client-server architecture:
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #TCP
+#Client_socket_UDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #UDP
 
 ######################################################################################
 #User-Interface Pages:
@@ -117,11 +119,13 @@ class LoginPage(tk.Tk):
             validation = validate(username, password)
             if validation:
                 try:
-                    self.server_address = '192.168.0.185'
+                    self.server_address = '127.0.0.1'
                     self.server_port = 12345
+                    self.server_port_UDP = 12346
 
                     # Connect to the server
                     client_socket.connect((self.server_address, self.server_port))
+                    #Client_socket_UDP.bind((self.server_address, self.server_port_UDP))
                 except Exception as e:
                     self.response_label.config(text=f"Error: {str(e)}")
                     
@@ -495,34 +499,68 @@ class Mapview(tk.Tk):
 class CameraFeed(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
+        self.withdraw()
 
         # OpenCV window setup
-        cv2.namedWindow("Received Frame", cv2.WINDOW_NORMAL)
+        #cv2.namedWindow("Received Frame", cv2.WINDOW_NORMAL)
 
-        try:
-            while True:
-                # Receive frame from the server
-                frame_bytes = client_socket.recv(4096)  # adjust buffer size as needed
-                if not frame_bytes:
-                    break  # connection closed
-            
-                # Convert bytes to numpy array
-                frame_data = np.frombuffer(frame_bytes, dtype=np.uint8)
+        while True:
+            # Receive frame size from the server
+            frame_size_bytes = client_socket.recv(4)
+            if not frame_size_bytes:
+                print("Warning: Frame-size bytes have not been received.")
+                break  # connection closed
+            else:
+                print("Status Alert: Frame-size bytes have been received successfully.")
 
-                # Decode and display the received frame
-                received_frame = cv2.imdecode(frame_data, cv2.IMREAD_COLOR)
-                cv2.imshow("Received Frame", received_frame)
-            
-                # Break the loop if 'q' is pressed
-                if cv2.waitKey(1) & 0xFF == ord('q'):
+            # Convert frame size bytes to integer
+            frame_size = int.from_bytes(frame_size_bytes, byteorder='big')
+
+            # Receive frame data from the server
+            frame_bytes = b''
+
+            # Keep receiving until the entire frame is received
+            while len(frame_bytes) < frame_size:
+                chunk = client_socket.recv(frame_size - len(frame_bytes))
+                if not chunk:
+                    print("Warning: Data chunk has not been received.")
                     break
+                else:
+                    print("Status Alert: Incoming data chunk.")
 
-        finally:
-            # Close the connection
-            client_socket.close()
-            # Release resources
-            cv2.destroyAllWindows()
+                frame_bytes += chunk
 
+            if not frame_bytes:
+                print("Warning: Frame bytes have not been assembled correctly.")
+                break  # connection closed
+            else:
+                print("Status Alert: Frame bytes have been prepared properly for display.")
+
+            # Convert bytes to numpy array
+            frame_data = np.frombuffer(frame_bytes, dtype=np.uint8)
+
+            # Decode and display the received frame
+            received_frame = cv2.imdecode(frame_data, cv2.IMREAD_COLOR)
+
+            cv2.imshow("Received Frame", received_frame)
+            cv2.waitKey(1)
+
+        '''#Receiver Test #2:
+        while True:
+            # Receive frame size from the server
+            frame = client_socket.recv(4096)
+            # Convert bytes to numpy array
+            frame_data = np.frombuffer(frame, dtype=np.uint8)
+            
+            # Decode and display the received frame
+            received_frame = cv2.imdecode(frame_data, cv2.IMREAD_COLOR)
+            cv2.imshow("Received Frame", received_frame)'''
+            
+                    
+        '''# Break the loop if 'q' is pressed
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break'''
+            
 #Support Pop-Up Window:
 class OpenNewWindow(tk.Tk):
 
