@@ -119,7 +119,7 @@ class LoginPage(tk.Tk):
             validation = validate(username, password)
             if validation:
                 try:
-                    self.server_address = '127.0.0.1'
+                    self.server_address = '192.168.0.185'
                     self.server_port = 12345
                     self.server_port_UDP = 12346
 
@@ -508,10 +508,10 @@ class CameraFeed(tk.Tk):
             # Receive frame size from the server
             frame_size_bytes = client_socket.recv(4)
             if not frame_size_bytes:
-                print("Warning: Frame-size bytes have not been received.")
+                #print("Warning: Frame-size bytes have not been received.")
                 break  # connection closed
-            else:
-                print("Status Alert: Frame-size bytes have been received successfully.")
+            #else:
+                #print("Status Alert: Frame-size bytes have been received successfully.")
 
             # Convert frame size bytes to integer
             frame_size = int.from_bytes(frame_size_bytes, byteorder='big')
@@ -523,18 +523,18 @@ class CameraFeed(tk.Tk):
             while len(frame_bytes) < frame_size:
                 chunk = client_socket.recv(frame_size - len(frame_bytes))
                 if not chunk:
-                    print("Warning: Data chunk has not been received.")
+                    #print("Warning: Data chunk has not been received.")
                     break
-                else:
-                    print("Status Alert: Incoming data chunk.")
+                #else:
+                    #print("Status Alert: Incoming data chunk.")
 
                 frame_bytes += chunk
 
             if not frame_bytes:
-                print("Warning: Frame bytes have not been assembled correctly.")
+                #print("Warning: Frame bytes have not been assembled correctly.")
                 break  # connection closed
-            else:
-                print("Status Alert: Frame bytes have been prepared properly for display.")
+            #else:
+                #print("Status Alert: Frame bytes have been prepared properly for display.")
 
             # Convert bytes to numpy array
             frame_data = np.frombuffer(frame_bytes, dtype=np.uint8)
