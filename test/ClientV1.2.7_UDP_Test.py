@@ -401,6 +401,16 @@ class Some_Widgets(GUI):
         frame2 = tk.LabelFrame(self.main_frame, frame_styles, text="Instructions")
         frame2.place(rely=0.05, relx=0.45, height=500, width=500)
 
+        # Add instructions text
+        instructions_text = ("Welcome to our application!\n\n"
+                             "1. Place orders by clicking the 'Place A New Order' button.\n"
+                             "2. View the map under 'Track An Existing Order' > 'Map Location'.\n"
+                             "2. View the camera feed under 'Track An Existing Order' > 'Live Camera Feed'.\n"
+                             "2. Use Manual Control under 'Setting' > 'Control Setting' > 'Enable Manual Control'.\n"
+                             "3. Log out the program under 'My Account' > 'Log Out'.")
+        instructions_label = tk.Label(frame2, text=instructions_text, wraplength=480, justify="left", font=("Arial", 12))
+        instructions_label.pack(padx=10, pady=10)
+
     def load_data(self):
         for row in transaction_history:
             self.tv1.insert("", "end", values=row)
