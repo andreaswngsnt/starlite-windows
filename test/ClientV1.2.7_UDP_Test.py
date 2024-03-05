@@ -512,7 +512,7 @@ class CameraFeed(tk.Tk):
         self.withdraw()
 
         # OpenCV window setup
-        #cv2.namedWindow("Received Frame", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("Received Frame", cv2.WINDOW_NORMAL)
 
         while True:
             # Receive frame size from the server
@@ -549,6 +549,7 @@ class CameraFeed(tk.Tk):
             # Decode and display the received frame
             processed_frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
             
+            cv2.resizeWindow("Received Frame", 800, 600)
             cv2.imshow("Received Frame", processed_frame)
             
             cv2.waitKey(1)
