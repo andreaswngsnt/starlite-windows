@@ -620,7 +620,7 @@ class Manual_Control(tk.Tk):
                         if key not in keys_pressed:
                             client_socket.send(f"{key}".encode('utf-8'))
                             continue
-                    elif (event.event_type == keyboard.KEY_UP) & (key != 'p'):
+                    elif (event.event_type == keyboard.KEY_UP) & (key != 'p') & (key != 'f'):
                         client_socket.send(f"{stop_key}".encode('utf-8'))
                         continue
 
