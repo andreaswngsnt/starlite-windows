@@ -533,6 +533,7 @@ class CameraFeed(tk.Tk):
                 break  # connection closed
             else:
                 print("Status Alert: Frame-size bytes have been received successfully.")
+                client_socket_UDP.sendto(b'n', addr)
 
             frame_bytes = b''
             
@@ -552,6 +553,7 @@ class CameraFeed(tk.Tk):
                 break
             else:
                 print("Status Alert: Frame bytes have been prepared properly for display.")
+                client_socket_UDP.sendto(b'n', addr)
 
             # Convert bytes to numpy array
             frame = np.frombuffer(frame_bytes, dtype=np.uint8)
