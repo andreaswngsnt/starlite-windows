@@ -45,6 +45,11 @@ https://www.youtube.com/watch?v=HjNHATw6XgY&list=PLQVvvaa0QuDclKx-QpC9wntnURXVJq
 #You can convert the dataframe using df.to_numpy.tolist()
 
 ######################################################################################
+#Global Variables:
+server_address = '127.0.0.1'
+server_port_TCP = 12345
+server_port_UDP = 12345
+
 #Logistical Tasks:
 
 #Transaction database:
@@ -57,7 +62,7 @@ frame_styles = {"relief": "groove",
 
 #Initializing client socket for client-server architecture:
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #TCP
-#Client_socket_UDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #UDP
+client_socket_UDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #UDP
 
 ######################################################################################
 #User-Interface Pages:
@@ -119,13 +124,13 @@ class LoginPage(tk.Tk):
             validation = validate(username, password)
             if validation:
                 try:
-                    self.server_address = '127.0.0.1'
-                    self.server_port = 12345
-                    self.server_port_UDP = 12346
+                    self.server_address = server_address
+                    self.server_port = server_port_TCP
+                    self.server_port_UDP = server_port_UDP
 
                     # Connect to the server
                     client_socket.connect((self.server_address, self.server_port))
-                    #Client_socket_UDP.bind((self.server_address, self.server_port_UDP))
+                    
                 except Exception as e:
                     self.response_label.config(text=f"Error: {str(e)}")
                     
@@ -514,37 +519,39 @@ class CameraFeed(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.withdraw()
 
+        client_socket_UDP.bind((server_address, server_port_UDP))
+
         # OpenCV window setup
         cv2.namedWindow("Received Frame", cv2.WINDOW_NORMAL)
 
         while True:
             # Receive frame size from the server
-            data, addr = client_socket.recvfrom(4)
+            data, addr = client_socket_UDP.recvfrom(4)
             frame_size = struct.unpack("!I", data)[0]
-            #if not frame_size:
-                #print("Warning: Frame-size bytes have not been received.")
-                #break  # connection closed
-            #else:
-                #print("Status Alert: Frame-size bytes have been received successfully.")
+            if not frame_size:
+                print("Warning: Frame-size bytes have not been received.")
+                break  # connection closed
+            else:
+                print("Status Alert: Frame-size bytes have been received successfully.")
 
             frame_bytes = b''
             
             while (len(frame_bytes) < frame_size):
-                frame_data, addr = client_socket.recvfrom(frame_size - len(frame_bytes))
+                frame_data, addr = client_socket_UDP.recvfrom(frame_size - len(frame_bytes))
 
-                #if not frame_data:
-                    #print("Warning: Frame data has not been received.")
-                    #break
-                #else:
-                    #print("Status Alert: Incoming frame data.")
+                if not frame_data:
+                    print("Warning: Frame data has not been received.")
+                    break
+                else:
+                    print("Status Alert: Incoming frame data.")
 
                 frame_bytes += frame_data
 
-            #if not frame_bytes:
-                #print("Warning: Frame bytes have not been assembled correctly.")
-                #break
-            #else:
-                #print("Status Alert: Frame bytes have been prepared properly for display.")
+            if not frame_bytes:
+                print("Warning: Frame bytes have not been assembled correctly.")
+                break
+            else:
+                print("Status Alert: Frame bytes have been prepared properly for display.")
 
             # Convert bytes to numpy array
             frame = np.frombuffer(frame_bytes, dtype=np.uint8)
