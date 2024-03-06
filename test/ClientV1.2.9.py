@@ -46,7 +46,7 @@ https://www.youtube.com/watch?v=HjNHATw6XgY&list=PLQVvvaa0QuDclKx-QpC9wntnURXVJq
 
 ######################################################################################
 #Global Variables:
-server_address = '127.0.0.1'
+server_address = '192.168.0.185'
 server_port_TCP = 12345
 server_port_UDP = 12345
 
@@ -537,7 +537,7 @@ class CameraFeed(tk.Tk):
 
             frame_bytes = b''
             
-            while (len(frame_bytes) < frame_size):
+            while (frame_size - len(frame_bytes) >= frame_size):
                 frame_data, addr = client_socket_UDP.recvfrom(frame_size - len(frame_bytes))
 
                 if not frame_data:
