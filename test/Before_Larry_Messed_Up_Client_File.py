@@ -657,6 +657,10 @@ class Autonomous_Control(tk.Tk):
 
         client_socket.send(f"{key}".encode('utf-8'))
 
+#enable the window to close normally
+def func():
+    root.destroy()
+  
 ######################################################################################
 #Program Execution:
 
@@ -668,6 +672,7 @@ top.title("Starlite Network - Login")
 root = MyApp()
 root.withdraw()
 root.title("Starlite Network")
+root.protocol('wm_delete_window', func)
 root.mainloop()
 
 #End of File
